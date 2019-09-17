@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import logo from '../../assets/svg/logo.svg';
-import './App.css';
+import './index.css';
 
-function App() {
+export default function Home() {
   useEffect(() => {
     fetch('/api/test')
       .then(res => {
@@ -28,4 +28,3 @@ function App() {
   );
 }
 
-export default App;
