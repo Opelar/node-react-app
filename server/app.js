@@ -3,12 +3,31 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 
 const indexRouter = require('./app/routes/index');
 const usersRouter = require('./app/routes/users');
 const apiRouter = require('./app/routes/api');
 
 const app = express();
+
+const dbURL = 'mongodb://localhost:27017/test'
+const mongoDB = process.env.MONGODB_URI || dbURL;
+
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.Promise = global.Promise;
+
+const db = mongoose.connection;
+
+db.on('connected', () => {
+  console.log(`Mongoose connection open to ${dbURL}`);
+})
+db.on('error', err => {
+  console.error(`MongoDB connection error: ${err}`)
+});
+db.on('disconnected', () => {
+  console.log('Mongoose connection disconnected');
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
