@@ -1,20 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const testController = require('../controllers/test');
 
 /* GET fetch test. */
-router.get('/test', function(req, res, next) {
-  res.json({
-    data: [
-      {
-        id: '0',
-        title: 'express'
-      },
-      {
-        id: '1',
-        title: 'react'
-      }
-    ]
-  });
-});
+router.get('/test', testController.test);
 
 module.exports = router;
