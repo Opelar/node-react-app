@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const TestSchema = new Schema({
   title: { type: String, required: true },
-  name: { type: Schema.ObjectId, required: true },
+  name: { type: Schema.ObjectId, required: true }
 });
 
 // Export model.

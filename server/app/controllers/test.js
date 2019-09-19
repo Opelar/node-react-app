@@ -1,20 +1,11 @@
 const Test = require('../models/test');
+const MovieUrl = require('../../spiders/movies/movieUrl');
 
 // @todo
-exports.test = function (req, res, next) {
-  console.log(Test); // Model { Test }
-  res.send({
-    data: [
-      {
-        id: '0',
-        name: 'express'
-      },
-      {
-        id: '1',
-        name: 'react'
-      }
-    ]
-  })
+exports.test = function(req, res, next) {
+  MovieUrl.find({}).then(list => {
+    res.send({
+      data: list
+    });
+  });
 };
-
-

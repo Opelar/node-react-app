@@ -9,9 +9,11 @@ const indexRouter = require('./app/routes/index');
 const usersRouter = require('./app/routes/users');
 const apiRouter = require('./app/routes/api');
 
+// const movieInit = require('./spiders/movies/index');
+
 const app = express();
 
-const dbURL = 'mongodb://localhost:27017/test'
+const dbURL = 'mongodb://localhost:27017/movie'
 const mongoDB = process.env.MONGODB_URI || dbURL;
 
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -21,6 +23,7 @@ const db = mongoose.connection;
 
 db.on('connected', () => {
   console.log(`Mongoose connection open to ${dbURL}`);
+  // movieInit();
 })
 db.on('error', err => {
   console.error(`MongoDB connection error: ${err}`)
