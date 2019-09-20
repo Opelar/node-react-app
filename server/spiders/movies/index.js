@@ -57,9 +57,10 @@ function generatePagesStack(html) {
 
 // 获取所有的分页下对应电影详情URL
 function getAllMovieDetailURL(pagesStack, allDetailUrls, callback) {
-  if (allDetailUrls.length > 10) {
-    return callback(null, allDetailUrls);
-  }
+  // test
+  // if (allDetailUrls.length > 10) {
+  //   return callback(null, allDetailUrls);
+  // }
   if (pagesStack.length === 0) {
     return callback(null, allDetailUrls);
   }
