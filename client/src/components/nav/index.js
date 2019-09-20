@@ -14,6 +14,9 @@ export default function Nav() {
         <li>
           <Link to="/user/">Users</Link>
         </li>
+        <li>
+          <Link to="/movieurl/list/">Movie Url List</Link>
+        </li>
       </ul>
     </nav>
   )
