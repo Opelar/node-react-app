@@ -9,7 +9,7 @@ const indexRouter = require('./app/routes/index');
 const usersRouter = require('./app/routes/users');
 const apiRouter = require('./app/routes/api');
 
-// const movieInit = require('./spiders/movies/index');
+// const movieUrlInit = require('./spiders/movies/index');
 
 const app = express();
 
@@ -23,7 +23,7 @@ const db = mongoose.connection;
 
 db.on('connected', () => {
   console.log(`Mongoose connection open to ${dbURL}`);
-  // movieInit();
+  // movieUrlInit();
 })
 db.on('error', err => {
   console.error(`MongoDB connection error: ${err}`)

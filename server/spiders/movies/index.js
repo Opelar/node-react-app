@@ -1,13 +1,13 @@
 const charset = require('superagent-charset');
 const request = charset(require('superagent'));
 const cheerio = require('cheerio');
-const MovieUrl = require('./movieUrl');
+const MovieUrl = require('../../app/models/movieUrl');
 
 // const base = 'https://www.dytt8.net/';
 const basePageUrl = 'https://www.dytt8.net/html/gndy/dyzz/';
 const indexUrl = 'https://www.dytt8.net/html/gndy/dyzz/index.html';
 
-module.exports = function movieInit() {
+module.exports = function movieUrlInit() {
   request
     .get(indexUrl)
     .charset()
