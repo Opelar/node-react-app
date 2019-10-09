@@ -1,4 +1,4 @@
-const MovieUrl = require('../../spiders/movies/movieUrl');
+const MovieUrl = require('../models/movieUrl');
 
 exports.getMovieUrlList = function (req, res, next) {
   const { p, size } = req.query;

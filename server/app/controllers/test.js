@@ -1,5 +1,5 @@
 const Test = require('../models/test');
-const MovieUrl = require('../../spiders/movies/movieUrl');
+const MovieUrl = require('../models/movieUrl');
 
 // @todo
 exports.test = function(req, res, next) {
