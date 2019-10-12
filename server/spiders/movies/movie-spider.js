@@ -43,32 +43,34 @@ function movieInit(urlList) {
     });
 }
 
-const mapStr = {
-  movie_title: '◎片　　名',
-  years: '◎年　　代',
-  fansub: '◎字　　幕',
-  imdb: '◎IMDB评分',
-  douban: '◎豆瓣评分',
-  file_format: '◎文件格式',
-  video_size: '◎视频尺寸',
-  file_size: '◎文件大小',
-  film_length: '◎片　　长',
-}
-
-const mapArr = {
-  translate_name: ['◎译　　名', '/'],
-  region: ['◎国　　家', '/'],
-  category: ['◎类　　别', '/'],
-  release_date: ['◎上映日期', '/'],
-  category: ['◎类　　别', '/'],
-  tags: ['◎标　　签', '|']
+const mapKeysString = {
+  translate_name: '译　　名',
+  movie_title: '片　　名',
+  years: '年　　代',
+  region: '产　　地',
+  category: '类　　别',
+  language: '语　　言',
+  fansub: '字　　幕',
+  release_date: '上映日期',
+  imdb: 'IMDb评',
+  douban: '豆瓣评分',
+  file_format: '文件格式',
+  video_size: '视频尺寸',
+  file_size: '文件大小',
+  film_length: '片　　长',
+  director: '导　　演',
+  writer: '编　　剧',
+  actors: '主　　演',
+  tags: '标　　签',
+  introduction: '简　　介',
+  award: '获奖情况',
 }
 
 function resolvingResponse(text, name) {
   const obj = {};
   const $ = cheerio.load(text, { decodeEntities: false });
   const detailsContainer = $('#Zoom>span>p').html();
-  const textList = detailsContainer ? detailsContainer.split('<br>') : [];
+  const textList = detailsContainer ? detailsContainer.split('◎') : [];
   // return transformToObject(textList);
   obj.name = name;
   obj.title = $('.title_all>h1').text();
@@ -79,6 +81,7 @@ function resolvingResponse(text, name) {
     .find(x => x.includes('发布时间：'));
   obj.pubdate = pubDate ? pubDate.split('发布时间：')[1].trim() : '';
 
+  // cover and screenshot
   const images = textList
     .filter(x => x.includes('<img'))
     .map(y => {
@@ -92,28 +95,32 @@ function resolvingResponse(text, name) {
     .filter(a => !a.startsWith('<img'))
     .filter(b => !b.startsWith('<font'))
     .filter(c => !c.startsWith('</font>'))
-    .filter(d => d.trim());
+    .filter(d => d.trim())
+    .map(e => {
+      let key = e.slice(0, 5).trim();
+      let val = e.slice(5, e.length).trim();
+      if (val) {
+        val = val
+          .split('<br>')
+          .filter(x => x.trim())
+          .map(y => y.trim())
+          .filter(z => !z.startsWith('<'))
+        val = val.length === 1 ? val[0]: val;
 
-  for (let i = 0; i < array.length; i++) {
-    const current = array[i];
-
-    Object.keys(mapStr).forEach(key => {
-      if (current.includes(mapStr[key])) {
-        obj[key] = current.split(mapStr[key])[1].trim();
+        if (typeof val === 'string') {
+          if (val.includes('/')) {
+            val = val.split('/').map(m => m.trim());
+          }
+          if (val.includes('|')) {
+            val = val.split('|').map(m => m.trim());
+          }
+        }
       }
+      return {
+        [key]: val
+      };
     })
-
-    Object.keys(mapArr).forEach(key => {
-      if (current.includes(mapArr[key][0])) {
-        obj[key] = current
-          .split(mapArr[key][0])[1]
-          .split(mapArr[key][1])
-          .map(x => x.trim())
-      }
-    })
-
-    // @todo
-  }
+  console.log(array);
 
   console.log(obj);
 }
