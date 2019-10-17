@@ -10,7 +10,7 @@ const usersRouter = require('./app/routes/users');
 const apiRouter = require('./app/routes/api');
 
 // const movieUrlInit = require('./spiders/movies/index');
-const movieInit = require('./spiders/movies/movie-spider');
+const getMovieDetails = require('./spiders/movies/movie-spider');
 
 const app = express();
 
@@ -25,7 +25,7 @@ const db = mongoose.connection;
 db.on('connected', () => {
   console.log(`Mongoose connection open to ${dbURL}`);
   // movieUrlInit();
-  movieInit();
+  getMovieDetails();
 })
 db.on('error', err => {
   console.error(`MongoDB connection error: ${err}`)

@@ -2,46 +2,9 @@ const charset = require('superagent-charset');
 const request = charset(require('superagent'));
 const cheerio = require('cheerio');
 const MovieUrl = require('../../app/models/movieUrl');
+const Movie = require('../../app/models/movie');
 
 const BASE_URL = 'https://www.dytt8.net/';
-
-
-module.exports = async function getMovieDetails() {
-  try {
-    const query = await MovieUrl.find({});
-    if (query && query.length > 0) {
-      const notUsedList = query.filter(item => !item['is_used']);
-      movieInit(notUsedList);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// test
-const urlObj = {
-  "_id": "5d8481a153ef78fe7f2fed27",
-  "text": "09最新动作片《热血高校2》DVD中字",
-  "url": "/html/gndy/dyzz/20191011/59246.html",
-  "__v": 0
-}
-
-function movieInit(urlList) {
-  // const urlObj = urlList[0];
-  request
-    .get(BASE_URL + urlObj.url)
-    .charset()
-    .end((err, res) => {
-      if (err) {
-        console.error(err);
-      }
-      if (res && res.text) {
-        const obj = resolvingResponse(res.text, urlObj.text);
-        // @todo
-        // 存库，标记
-      }
-    });
-}
 
 const mapKeysString = {
   translate_name: '译　　名',
@@ -66,11 +29,71 @@ const mapKeysString = {
   award: '获奖情况',
 }
 
+module.exports = async function getMovieDetails() {
+  try {
+    const query = await MovieUrl.find({});
+    if (query && query.length > 0) {
+      const notUsedList = query.filter(item => !item['is_used']);
+      movieInit(notUsedList);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+function movieInit(urlList) {
+  if (!urlList || urlList.length === 0) {
+    return;
+  }
+
+  const urlObj = urlList[0];
+  console.log(urlObj);
+  request
+    .get(BASE_URL + urlObj.url)
+    .charset()
+    .end((err, res) => {
+      if (err) {
+        urlList.shift();
+        movieInit(urlList);
+        console.error(err);
+      }
+      if (res && res.text) {
+        const obj = resolvingResponse(res.text, urlObj.text);
+        const movie = new Movie(obj);
+
+        movie.save((err, doc) => {
+          urlList.shift();
+          movieInit(urlList);
+
+          if (err) {
+            return console.error(err);
+          }
+
+          MovieUrl.update({ text: urlObj.text }, { is_used: true });
+        })
+      }
+    });
+}
+
 function resolvingResponse(text, name) {
   const obj = {};
   const $ = cheerio.load(text, { decodeEntities: false });
   const detailsContainer = $('#Zoom>span>p').html();
   const textList = detailsContainer ? detailsContainer.split('◎') : [];
+
+  const downloadLinks = [];
+  $('#Zoom a').each((_, ele) => {
+    if ($(ele) && $(ele).attr('href')) {
+      if (
+        !$(ele).attr('href').includes('http://') &&
+        !$(ele).attr('href').includes('https://')
+      ) {
+        downloadLinks.push($(ele).attr('href'))
+      }
+    }
+  })
+  obj.download_link = downloadLinks || [];
+
   // return transformToObject(textList);
   obj.name = name;
   obj.title = $('.title_all>h1').text();
@@ -91,7 +114,24 @@ function resolvingResponse(text, name) {
   images.shift();
   obj.screenshot = images;
 
-  const array = textList
+  const array = genData(textList || []);
+
+  Object.keys(mapKeysString).forEach(key => {
+    const zkey = mapKeysString[key];
+    const current = array.find(item => Object.keys(item)[0] === zkey);
+    if (current) {
+      obj[key] = Object.values(current)[0];
+    }
+  })
+
+  return obj;
+}
+
+function genData(textList) {
+  if (textList.length === 0) {
+    return [];
+  }
+  return textList
     .filter(a => !a.startsWith('<img'))
     .filter(b => !b.startsWith('<font'))
     .filter(c => !c.startsWith('</font>'))
@@ -105,7 +145,7 @@ function resolvingResponse(text, name) {
           .filter(x => x.trim())
           .map(y => y.trim())
           .filter(z => !z.startsWith('<'))
-        val = val.length === 1 ? val[0]: val;
+        val = val.length === 1 ? val[0] : val;
 
         if (typeof val === 'string') {
           if (val.includes('/')) {
@@ -120,7 +160,4 @@ function resolvingResponse(text, name) {
         [key]: val
       };
     })
-  console.log(array);
-
-  console.log(obj);
 }
