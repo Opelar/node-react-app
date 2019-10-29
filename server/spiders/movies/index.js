@@ -26,7 +26,6 @@ module.exports = function movieUrlInit() {
             if (err) {
               console.error(err);
             }
-            console.log('doc =====', doc.length);
           })
         });
       });
